@@ -5,7 +5,7 @@ Thank you for your interest in contributing to the Distributed Rate Limiter! We 
 ## 🚀 Quick Start
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/your-username/distributed-rate-limiter.git`
+2. **Clone** your fork: `git clone https://github.com/your-/distributed-rate-limiter.git`
 3. **Install** Java 21 and Docker
 4. **Run tests**: `./mvnw test`
 5. **Start contributing**!
