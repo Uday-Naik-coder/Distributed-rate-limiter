@@ -43,8 +43,7 @@ export const ApiHealthCheck = () => {
       <Alert variant="destructive">
         <XCircle className="h-4 w-4" />
         <AlertDescription>
-          Backend API unavailable. Make sure the server is running on{' '}
-          <code className="font-mono">http://localhost:8080</code>
+          Backend API unavailable. The server may be starting up or there's a connection issue.
         </AlertDescription>
       </Alert>
     );
