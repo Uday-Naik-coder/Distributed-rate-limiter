@@ -6,7 +6,7 @@ FROM node:24-alpine AS frontend-build
 WORKDIR /dashboard
 
 COPY examples/web-dashboard/package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts --legacy-peer-deps
 
 COPY examples/web-dashboard/ ./
 RUN npm run build
