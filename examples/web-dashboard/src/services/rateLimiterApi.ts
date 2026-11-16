@@ -1,8 +1,15 @@
 // Real API Service for Distributed Rate Limiter Backend
 
 // Use runtime config (injected by entrypoint.sh) or build-time VITE_API_URL as fallback
-const RUNTIME_CONFIG = (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__) || {};
-const API_BASE_URL = RUNTIME_CONFIG.VITE_API_URL || import.meta.env.VITE_API_URL || '';
+// Use a getter to ensure we read the latest config at call time (config.js may load after module)
+const getApiBaseUrl = (): string => {
+  if (typeof window !== 'undefined') {
+    const runtimeConfig = (window as any).__RUNTIME_CONFIG__ || {};
+    if (runtimeConfig.VITE_API_URL) return runtimeConfig.VITE_API_URL;
+  }
+  return import.meta.env.VITE_API_URL || '';
+};
+
 const ADMIN_CREDENTIALS = btoa('admin:admin123');
 
 interface RateLimitCheckRequest {
@@ -108,7 +115,7 @@ class RateLimiterApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${getApiBaseUrl()}${endpoint}`;
     
     try {
       const response = await fetch(url, {
