@@ -1,0 +1,56 @@
+# --------------------------------------------------
+# Backend: Spring Boot API Service
+# --------------------------------------------------
+# Build stage
+FROM eclipse-temurin:21.0.13_9-jdk AS build
+
+WORKDIR /app
+
+# Copy Maven wrapper and pom.xml first for better caching
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Download dependencies (cached layer)
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+
+# Copy source code
+COPY src ./src
+
+# Build the executable Spring Boot JAR
+RUN ./mvnw clean package -DskipTests -B
+
+# --------------------------------------------------
+# Runtime stage
+# --------------------------------------------------
+FROM eclipse-temurin:21.0.13_9-jre-alpine-3.23 AS runtime
+
+# Apply Alpine security fixes and create non-root user
+RUN apk upgrade --no-cache && \
+  apk add --no-cache \
+  'brotli-libs>=1.2.1-r0' \
+  'libexpat>=2.10.0-r0' \
+  'zlib>=1.4-r0' \
+  'musl>=1.2.5-r24' \
+  'musl-utils>=1.2.5-r24' \
+  'libpng>=1.6.59-r0' && \
+  addgroup -S -g 10001 appuser && \
+  adduser -S -D -H -u 10001 -G appuser appuser
+
+WORKDIR /app
+
+# Copy the built JAR from build stage
+COPY --from=build --chown=appuser:appuser /app/target/*.jar app.jar
+
+USER appuser
+
+# Expose port (Render sets PORT env var)
+EXPOSE 8080
+
+ENV JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom -Xmx512m -Xms256m" \
+    SPRING_PROFILES_ACTIVE=docker
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget -q --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

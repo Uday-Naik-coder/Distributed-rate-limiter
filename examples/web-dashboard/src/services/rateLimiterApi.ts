@@ -1,8 +1,9 @@
 // Real API Service for Distributed Rate Limiter Backend
 
-// Use relative URLs in development (Vite proxy) and production (same origin)
-// In development, Vite proxy forwards /api/* and /actuator/* to http://localhost:8080
-const API_BASE_URL = import.meta.env.PROD ? '' : '';
+// Use VITE_API_URL env variable for backend URL
+// In development: VITE_API_URL=http://localhost:8080 (set in .env.local)
+// In production: VITE_API_URL=https://your-backend.onrender.com (set in Render dashboard)
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 const ADMIN_CREDENTIALS = btoa('admin:admin123');
 
 interface RateLimitCheckRequest {
