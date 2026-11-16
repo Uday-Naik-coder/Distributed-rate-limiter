@@ -1,7 +1,9 @@
 // Real API Service for Distributed Rate Limiter Backend
 
-// Use runtime config (injected by entrypoint.sh) or build-time VITE_API_URL as fallback
-// Use a getter to ensure we read the latest config at call time (config.js may load after module)
+// Priority order for API base URL:
+// 1. Runtime config (injected by entrypoint.sh in Docker/Render) - highest priority
+// 2. Build-time VITE_API_URL (Vercel, local .env.local) - fallback
+// Use a getter to ensure we read the latest config at call time
 interface RuntimeConfig {
   VITE_API_URL?: string;
 }
