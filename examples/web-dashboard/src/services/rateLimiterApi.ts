@@ -2,9 +2,13 @@
 
 // Use runtime config (injected by entrypoint.sh) or build-time VITE_API_URL as fallback
 // Use a getter to ensure we read the latest config at call time (config.js may load after module)
+interface RuntimeConfig {
+  VITE_API_URL?: string;
+}
+
 const getApiBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
-    const runtimeConfig = (window as any).__RUNTIME_CONFIG__ || {};
+    const runtimeConfig = (window as Window & { __RUNTIME_CONFIG__?: RuntimeConfig }).__RUNTIME_CONFIG__ || {};
     if (runtimeConfig.VITE_API_URL) return runtimeConfig.VITE_API_URL;
   }
   return import.meta.env.VITE_API_URL || '';
