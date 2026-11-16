@@ -1,0 +1,33 @@
+# Render Blueprint for Distributed Rate Limiter
+# Deploy with: render blueprint launch --file render.yaml
+# Or push to GitHub and connect repo in Render dashboard
+
+services:
+  # Backend API Service
+  - type: web
+    name: rate-limiter-backend
+    runtime: docker
+    dockerfilePath: ./distributed-rate-limiter/Dockerfile.backend
+    dockerContext: ./distributed-rate-limiter
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: docker
+      - key: ratelimiter.redis.enabled
+        value: "false"
+    healthCheckPath: /actuator/health
+    autoDeploy: true
+
+  # Frontend Static Site (served via Nginx)
+  - type: web
+    name: rate-limiter-frontend
+    runtime: docker
+    dockerfilePath: ./distributed-rate-limiter/examples/web-dashboard/Dockerfile.frontend
+    dockerContext: ./distributed-rate-limiter/examples/web-dashboard
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: VITE_API_URL
+        # This will be set after backend deploys - update manually or via script
+        value: "https://rate-limiter-backend.onrender.com"
+    healthCheckPath: /health
+    autoDeploy: true
